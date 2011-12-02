@@ -29,7 +29,7 @@ rescue LoadError
     MarkdownHandler = RDiscount
   rescue LoadError
     # warn "Unable to load rdiscount, trying bluecloth instead.."
-    gem 'bluecloth', '~> 2.1.0'
+    gem 'bluecloth', '>= 2.1'
     require 'bluecloth'
     MarkdownHandler = BlueCloth
   end
@@ -144,7 +144,7 @@ class BuildDoc
     end
     @src_path = src_path
     @proj_name = File.split( src_path )[1]
-    @dst_path = File.expand_path( @proj_name+'.html', dst_path )
+    @dst_path = File.expand_path( 'index.html', dst_path )
     read_config
     @src  = {}
     read_markdown
@@ -159,8 +159,13 @@ class BuildDocs
       next if proj_name.start_with?('.')
       src_path = File.expand_path( proj_name, doc_path )
       next unless File.directory?( src_path )
+      build_dst = File.expand_path( proj_name, dst_path )
+      unless File.directory?( build_dst )
+        puts "no such destination: #{build_dst}"
+        next
+      end
       puts proj_name
-      BuildDoc.new( src_path, dst_path )
+      BuildDoc.new( src_path, build_dst )
     end
   end
 end
